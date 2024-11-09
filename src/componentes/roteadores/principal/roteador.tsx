@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useEffect, useState } from "react";
 import Empresa from "../../../modelo/empresa";
 import Cliente from "../../../modelo/cliente";
 import CPF from "../../../modelo/cpf";
@@ -13,22 +13,12 @@ import RoteadorProduto from "../produto/roteadorProduto";
 import Servico from "../../../modelo/servico";
 import RoteadorServico from "../servico/roteadorServico";
 
-type state = {
-    tela: string
-    empresa: Empresa
-}
 
-export default class Roteador extends Component<{}, state> {
-    constructor(props: {} | Readonly<{}>) {
-        super(props)
-        this.state = {
-            tela: 'Clientes',
-            empresa: new Empresa()
-        }
-        this.selecionarView = this.selecionarView.bind(this)
-    }
+export default function Roteador() {
+    const [tela, setTela] = useState<string>("Clientes")
+    const [empresa, setEmpresa] = useState<Empresa>(new Empresa())
 
-    componentDidMount(): void {
+    useEffect(() => {
         document.body.style.backgroundColor = "#2513EB"
         const empresaAtual = new Empresa()
 
@@ -53,54 +43,49 @@ export default class Roteador extends Component<{}, state> {
         empresaAtual.setProdutos = produtos
         empresaAtual.setServicos = servicos
 
-        this.setState({
-            empresa: empresaAtual
-        })
-    }
+        setEmpresa(empresaAtual)
+    }, [])
 
-    selecionarView(novaTela: string, evento: Event) {
+    const selecionarView = (novaTela: string, evento: Event) => {
         evento.preventDefault()
         console.log(novaTela);
-        this.setState({
-            tela: novaTela
-        })
+        setTela(novaTela)
     }
 
-    render() {
-        let barraNavegacao = <BarraNavegacao
-            seletorView={this.selecionarView}
-            botoes={['Clientes', 'Pets', 'Produtos', 'Serviços']}
-            titulo=""
-        />
+    let barraNavegacao = <BarraNavegacao
+        seletorView={selecionarView}
+        botoes={['Clientes', 'Pets', 'Produtos', 'Serviços']}
+        titulo=""
+    />
 
-        if (this.state.tela === 'Clientes') {
-            return (
-                <>
-                    {barraNavegacao}
-                    <RoteadorCliente clientes={this.state.empresa.getClientes} />
-                </>
-            )
-        } else if (this.state.tela === 'Pets') {
-            return (
-                <>
-                    {barraNavegacao}
-                    <RoteadorPet clientes={this.state.empresa.getClientes} />
-                </>
-            )
-        } else if (this.state.tela === 'Produtos') {
-            return (
-                <>
-                    {barraNavegacao}
-                    <RoteadorProduto clientes={this.state.empresa.getClientes} produtos={this.state.empresa.getProdutos} />
-                </>
-            )
-        } else if (this.state.tela === 'Serviços') {
-            return (
-                <>
-                    {barraNavegacao}
-                    <RoteadorServico clientes={this.state.empresa.getClientes} servicos={this.state.empresa.getServicos} />
-                </>
-            )
-        }
+    if (tela === 'Clientes') {
+        return (
+            <>
+                {barraNavegacao}
+                <RoteadorCliente clientes={empresa.getClientes} />
+            </>
+        )
+    } else if (tela === 'Pets') {
+        return (
+            <>
+                {barraNavegacao}
+                <RoteadorPet clientes={empresa.getClientes} />
+            </>
+        )
+    } else if (tela === 'Produtos') {
+        return (
+            <>
+                {barraNavegacao}
+                <RoteadorProduto clientes={empresa.getClientes} produtos={empresa.getProdutos} />
+            </>
+        )
+    } else if (tela === 'Serviços') {
+        return (
+            <>
+                {barraNavegacao}
+                <RoteadorServico clientes={empresa.getClientes} servicos={empresa.getServicos} />
+            </>
+        )
     }
+
 }
