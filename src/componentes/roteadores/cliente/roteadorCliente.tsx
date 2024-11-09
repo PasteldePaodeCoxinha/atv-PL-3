@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useState } from "react";
 import "./roteadorCliente.css"
 import BarraNavegacao from "../../barraNavegacao";
 import FormularioCadastroCliente from "../../cliente/forms/formularioCadastroCliente";
@@ -9,48 +9,33 @@ type props = {
     clientes: Cliente[]
 }
 
-type state = {
-    tela: string
+export default function RoteadorCliente(props: props) {
+    const [tela, setTela] = useState<string>("Cadastro")
 
-}
-
-export default class RoteadorCliente extends Component<props, state> {
-    constructor(props: props | Readonly<props>) {
-        super(props)
-        this.state = {
-            tela: 'Cadastro'
-        }
-        this.selecionarView = this.selecionarView.bind(this)
-    }
-
-    selecionarView(novaTela: string, evento: Event) {
+    const selecionarView = (novaTela: string, evento: Event) => {
         evento.preventDefault()
         console.log(novaTela);
-        this.setState({
-            tela: novaTela
-        })
+        setTela(novaTela)
+    }
+    let barraNavegacao = <BarraNavegacao
+        seletorView={selecionarView}
+        botoes={['Lista', 'Cadastro']}
+        titulo="Cliente"
+    />
+    if (tela === 'Lista') {
+        return (
+            <div className="paginaListaCliente">
+                {barraNavegacao}
+                <ListaCliente clientes={props.clientes} />
+            </div>
+        )
+    } else if (tela === 'Cadastro') {
+        return (
+            <div className="paginaCadastroCliente">
+                {barraNavegacao}
+                <FormularioCadastroCliente clientes={props.clientes} />
+            </div>
+        )
     }
 
-    render() {
-        let barraNavegacao = <BarraNavegacao
-            seletorView={this.selecionarView}
-            botoes={['Lista', 'Cadastro']}
-            titulo="Cliente"
-        />
-        if (this.state.tela === 'Lista') {
-            return (
-                <div className="paginaListaCliente">
-                    {barraNavegacao}
-                    <ListaCliente clientes={this.props.clientes} />
-                </div>
-            )
-        } else if (this.state.tela === 'Cadastro') {
-            return (
-                <div className="paginaCadastroCliente">
-                    {barraNavegacao}
-                    <FormularioCadastroCliente clientes={this.props.clientes} />
-                </div>
-            )
-        }
-    }
 }
