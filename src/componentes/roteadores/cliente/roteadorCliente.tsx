@@ -36,6 +36,12 @@ export default function RoteadorCliente(props: props) {
                 <FormularioCadastroCliente clientes={props.clientes} />
             </div>
         )
+    } else {
+        return (
+            <div>
+                <p>ERRO!</p>
+            </div>
+        )
     }
 
 }

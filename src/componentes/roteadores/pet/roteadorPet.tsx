@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useState } from "react";
 import "./roteadorPet.css"
 import BarraNavegacao from "../../barraNavegacao";
 import Cliente from "../../../modelo/cliente";
@@ -9,48 +9,41 @@ type props = {
     clientes: Cliente[]
 }
 
-type state = {
-    tela: string
+export default function RoteadorPet(props: props) {
+    const [tela, setTela] = useState<string>("Cadastro")
 
-}
-
-export default class RoteadorPet extends Component<props, state> {
-    constructor(props: props | Readonly<props>) {
-        super(props)
-        this.state = {
-            tela: 'Cadastro'
-        }
-        this.selecionarView = this.selecionarView.bind(this)
-    }
-
-    selecionarView(novaTela: string, evento: Event) {
+    const selecionarView = (novaTela: string, evento: Event) => {
         evento.preventDefault()
         console.log(novaTela);
-        this.setState({
-            tela: novaTela
-        })
+        setTela(novaTela)
     }
 
-    render() {
-        let barraNavegacao = <BarraNavegacao
-            seletorView={this.selecionarView}
-            botoes={['Lista', 'Cadastro']}
-            titulo="Pet"
-        />
-        if (this.state.tela === 'Lista') {
-            return (
-                <div className="paginaListaPet">
-                    {barraNavegacao}
-                    <ListaPet clientes={this.props.clientes} />
-                </div>
-            )
-        } else if (this.state.tela === 'Cadastro') {
-            return (
-                <div className="paginaCadastroPet">
-                    {barraNavegacao}
-                    <FormularioCadastroPet clientes={this.props.clientes} />
-                </div>
-            )
-        }
+
+    let barraNavegacao = <BarraNavegacao
+        seletorView={selecionarView}
+        botoes={['Lista', 'Cadastro']}
+        titulo="Pet"
+    />
+    if (tela === 'Lista') {
+        return (
+            <div className="paginaListaPet">
+                {barraNavegacao}
+                <ListaPet clientes={props.clientes} />
+            </div>
+        )
+    } else if (tela === 'Cadastro') {
+        return (
+            <div className="paginaCadastroPet">
+                {barraNavegacao}
+                <FormularioCadastroPet clientes={props.clientes} />
+            </div>
+        )
+    } else {
+        return(
+            <div>
+                <p>ERRO!</p>
+            </div>
+        )
     }
+
 }
