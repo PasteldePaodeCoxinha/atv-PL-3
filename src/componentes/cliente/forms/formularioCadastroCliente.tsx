@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import { Component } from "react";
+import { useState } from "react";
 import Cliente from "../../../modelo/cliente";
 import CPF from "../../../modelo/cpf";
 import RG from "../../../modelo/rg";
@@ -10,255 +10,188 @@ type props = {
     clientes: Cliente[]
 }
 
-type state = {
-    clientes: Cliente[]
-    nome: string
-    nomeSocial: string
-    email: string
-    valorCpf: string
-    dataCpf: string
-    qtdRg: number
-    valorRg: string
-    dataRg: string
-    qtdTelefone: number
-    telefone1: string
-    telefone2?: string
-    avisos: string
-}
+export default function FormularioCadastroCliente(props: props) {
+    const [nome, setNome] = useState<string>("")
+    const [nomeSocial, setNomeSocial] = useState<string>("")
+    const [email, setEmail] = useState<string>("")
+    const [valorCpf, setValorCpf] = useState<string>("")
+    const [dataCpf, setDataCpf] = useState<string>("")
+    const [valorRg, setValorRg] = useState<string>("")
+    const [dataRg, setDataRg] = useState<string>("")
+    const [telefone1, setTelefone1] = useState<string>("")
+    const [telefone2, setTelefone2] = useState<string | undefined>(undefined)
 
-export default class FormularioCadastroCliente extends Component<props, state> {
-    constructor(props: props | Readonly<props>) {
-        super(props)
-        this.state = {
-            clientes: props.clientes,
-            nome: "",
-            nomeSocial: "",
-            email: "",
-            valorCpf: "",
-            dataCpf: "",
-            qtdRg: 0,
-            valorRg: "",
-            dataRg: "",
-            qtdTelefone: 0,
-            telefone1: "",
-            telefone2: "",
-            avisos: ""
-        }
-        this.mudarValorNome = this.mudarValorNome.bind(this)
-        this.mudarValorNomeSocial = this.mudarValorNomeSocial.bind(this)
 
-        this.mudarValorEmail = this.mudarValorEmail.bind(this)
-
-        this.mudarValorCpf = this.mudarValorCpf.bind(this)
-        this.mudarValorDataCpf = this.mudarValorDataCpf.bind(this)
-
-        this.mudarValorRg = this.mudarValorRg.bind(this)
-        this.mudarValorDataRg = this.mudarValorDataRg.bind(this)
-
-        this.mudarValorTelefone1 = this.mudarValorTelefone1.bind(this)
-        this.mudarValorTelefone2 = this.mudarValorTelefone2.bind(this)
-
-        this.clienteCriarAdicionar = this.clienteCriarAdicionar.bind(this)
+    const mudarValorNome = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNome(e.target.value)
     }
 
-    mudarValorNome(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            nome: e.target.value
-        })
+    const mudarValorNomeSocial = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNomeSocial(e.target.value)
     }
 
-    mudarValorNomeSocial(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            nomeSocial: e.target.value
-        })
+    const mudarValorEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEmail(e.target.value)
     }
 
-    mudarValorEmail(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            email: e.target.value
-        })
+    const mudarValorCpf = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setValorCpf(e.target.value)
     }
 
-    mudarValorCpf(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            valorCpf: e.target.value
-        })
+    const mudarValorDataCpf = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setDataCpf(e.target.value)
     }
 
-    mudarValorDataCpf(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            dataCpf: e.target.value
-        })
+    const mudarValorRg = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setValorRg(e.target.value)
     }
 
-    mudarValorRg(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            valorRg: e.target.value
-        })
+    const mudarValorDataRg = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setDataRg(e.target.value)
     }
 
-    mudarValorDataRg(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            dataRg: e.target.value
-        })
+    const mudarValorTelefone1 = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTelefone1(e.target.value)
     }
 
-    mudarValorTelefone1(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            telefone1: e.target.value
-        })
+    const mudarValorTelefone2 = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTelefone2(e.target.value)
     }
 
-    mudarValorTelefone2(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            telefone2: e.target.value
-        })
-    }
-
-    clienteCriarAdicionar(e: React.ChangeEvent<HTMLFormElement>) {
+    const clienteCriarAdicionar = (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
 
-        if (this.state.nome === "") {
-            this.setState({
-                avisos: "Coloque um nome\n"
-            })
-            return
+        let listaTel = [new Telefone(telefone1.substring(0, 2), telefone1.substring(2))]
+
+        if (telefone2 !== "" && telefone2 !== undefined) {
+            listaTel.push(new Telefone(telefone2.substring(0, 2), telefone2.substring(2)))
         }
 
-        let listaTel = [new Telefone(this.state.telefone1.substring(0, 2), this.state.telefone1.substring(2))]
+        // let datasCpf = dataCpf.split("")
+        // let datasRg = dataRg.split("-")
 
-        if (this.state.telefone2 !== "" && this.state.telefone2 !== undefined) {
-            listaTel.push(new Telefone(this.state.telefone2.substring(0, 2), this.state.telefone2.substring(2)))
-        }
-
-        // let datasCpf = this.state.dataCpf.split("")
-        // let datasRg = this.state.dataRg.split("-")
-
-        this.props.clientes.push(new Cliente(
-            this.state.nome,
-            this.state.nomeSocial,
-            this.state.email,
-            new CPF(this.state.valorCpf, new Date(this.state.dataCpf)),
-            [new RG(this.state.valorRg,
-                new Date(this.state.dataRg))],
+        props.clientes.push(new Cliente(
+            nome,
+            nomeSocial,
+            email,
+            new CPF(valorCpf, new Date(dataCpf)),
+            [new RG(valorRg,
+                new Date(dataRg))],
             listaTel))
 
-        this.setState({
-            nome: "",
-            nomeSocial: "",
-            email: "",
-            valorCpf: "",
-            dataCpf: "",
-            valorRg: "",
-            dataRg: "",
-            telefone1: "",
-            telefone2: "",
-            avisos: ""
-        })
+        setNome("")
+        setNomeSocial("")
+        setEmail("")
+        setValorCpf("")
+        setDataCpf("")
+        setValorRg("")
+        setDataRg("")
+        setTelefone1("")
+        setTelefone2("")
     }
 
-    render() {
-        return (
-            <div className="containerFormularioCliente">
 
-                <form className="formularioCliente" onSubmit={this.clienteCriarAdicionar}>
+    return (
+        <div className="containerFormularioCliente">
 
-                    <div className="linhaFormularioCadastroCliente">
+            <form className="formularioCliente" onSubmit={clienteCriarAdicionar}>
+
+                <div className="linhaFormularioCadastroCliente">
+
+                    <input type="text"
+                        className="inputClienteForms"
+                        placeholder="Nome"
+                        value={nome}
+                        onChange={mudarValorNome}
+                        required />
+
+
+
+                    <input type="text"
+                        className="inputClienteForms"
+                        placeholder="Nome social"
+                        value={nomeSocial}
+                        onChange={mudarValorNomeSocial} />
+
+                </div>
+
+                <div className="linhaFormularioCadastroCliente">
+
+                    <input type="email"
+                        className="inputClienteForms"
+                        placeholder="E-mail"
+                        value={email}
+                        onChange={mudarValorEmail}
+                        required />
+
+                </div>
+
+                <div className="linhaFormularioCadastroCliente">
+                    <div className="inputsComDataFormsCliente">
 
                         <input type="text"
                             className="inputClienteForms"
-                            placeholder="Nome"
-                            value={this.state.nome}
-                            onChange={this.mudarValorNome}
+                            placeholder="CPF"
+                            value={valorCpf}
+                            onChange={mudarValorCpf}
                             required />
 
-
-
                         <input type="text"
                             className="inputClienteForms"
-                            placeholder="Nome social"
-                            value={this.state.nomeSocial}
-                            onChange={this.mudarValorNomeSocial} />
-
-                    </div>
-
-                    <div className="linhaFormularioCadastroCliente">
-
-                        <input type="email"
-                            className="inputClienteForms"
-                            placeholder="E-mail"
-                            value={this.state.email}
-                            onChange={this.mudarValorEmail}
+                            placeholder="Data CPF"
+                            datatype=""
+                            value={dataCpf}
+                            onChange={mudarValorDataCpf}
                             required />
 
                     </div>
+                </div>
 
-                    <div className="linhaFormularioCadastroCliente">
-                        <div className="inputsComDataFormsCliente">
-
-                            <input type="text"
-                                className="inputClienteForms"
-                                placeholder="CPF"
-                                value={this.state.valorCpf}
-                                onChange={this.mudarValorCpf}
-                                required />
-
-                            <input type="text"
-                                className="inputClienteForms"
-                                placeholder="Data CPF"
-                                datatype=""
-                                value={this.state.dataCpf}
-                                onChange={this.mudarValorDataCpf}
-                                required />
-
-                        </div>
-                    </div>
-
-                    <div className="linhaFormularioCadastroCliente">
-                        <div className="inputsComDataFormsCliente">
-
-                            <input type="text"
-                                className="inputClienteForms"
-                                placeholder="RG"
-                                value={this.state.valorRg}
-                                onChange={this.mudarValorRg}
-                                required />
-
-                            <input type="text"
-                                placeholder="Data RG"
-                                className="inputClienteForms"
-                                value={this.state.dataRg}
-                                onChange={this.mudarValorDataRg}
-                                required />
-
-                        </div>
-                    </div>
-
-                    <div className="linhaFormularioCadastroCliente">
+                <div className="linhaFormularioCadastroCliente">
+                    <div className="inputsComDataFormsCliente">
 
                         <input type="text"
                             className="inputClienteForms"
-                            placeholder="Telefone 1"
-                            value={this.state.telefone1}
-                            onChange={this.mudarValorTelefone1}
+                            placeholder="RG"
+                            value={valorRg}
+                            onChange={mudarValorRg}
                             required />
 
-
-
                         <input type="text"
+                            placeholder="Data RG"
                             className="inputClienteForms"
-                            placeholder="Telefone 2"
-                            value={this.state.telefone2}
-                            onChange={this.mudarValorTelefone2} />
+                            value={dataRg}
+                            onChange={mudarValorDataRg}
+                            required />
 
                     </div>
+                </div>
 
-                    <div className="containerBotaoCadastrarCliente">
-                        <button className="botaoCadastrarCliente">CADASTRAR</button>
-                    </div>
-                </form>
+                <div className="linhaFormularioCadastroCliente">
 
-            </div>
-        )
-    }
+                    <input type="text"
+                        className="inputClienteForms"
+                        placeholder="Telefone 1"
+                        value={telefone1}
+                        onChange={mudarValorTelefone1}
+                        required />
+
+
+
+                    <input type="text"
+                        className="inputClienteForms"
+                        placeholder="Telefone 2"
+                        value={telefone2}
+                        onChange={mudarValorTelefone2} />
+
+                </div>
+
+                <div className="containerBotaoCadastrarCliente">
+                    <button className="botaoCadastrarCliente">CADASTRAR</button>
+                </div>
+            </form>
+
+        </div>
+    )
+
 }
