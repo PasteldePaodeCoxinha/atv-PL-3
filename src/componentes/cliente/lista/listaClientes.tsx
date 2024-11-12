@@ -18,9 +18,7 @@ export default function ListaCliente(props: props) {
     }, [clientes])
 
     const excluirCliente = useCallback((e: React.MouseEvent<HTMLButtonElement, MouseEvent>, nome: string) => {
-        const clientesFiltrar = [...clientes]
-        clientesFiltrar.splice((clientes.findIndex(c => c.nome === nome)), 1)
-        setClientes(clientesFiltrar)
+        setClientes(clientes.filter(c => c.nome !== nome))
         e.stopPropagation()
     }, [clientes])
 
