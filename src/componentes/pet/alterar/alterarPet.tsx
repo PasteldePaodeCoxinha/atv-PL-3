@@ -17,7 +17,7 @@ export default function AlterarPet(props: props) {
         setNome(e.target.value)
     }
 
-    const mudarValorTamanho = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const mudarValorTamanho = (e: React.ChangeEvent<HTMLSelectElement>) => {
         props.pet.setTamanho = e.target.value
         setTamanho(e.target.value)
     }
@@ -36,7 +36,14 @@ export default function AlterarPet(props: props) {
 
             <div className="campoPetEditavel">
                 <label>Tamanho:</label>
-                <input type="email" value={tamanho} onChange={mudarValorTamanho} />
+                <select className="selectPetForms"
+                    onChange={mudarValorTamanho}
+                    value={tamanho}>
+                    <option value="" disabled>Tamanho</option>
+                    <option value="Grande">Grande</option>
+                    <option value="Médio">Médio</option>
+                    <option value="Pequeno">Pequeno</option>
+                </select>
             </div>
 
             <div className="campoPetFixo">

@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import { Component } from "react";
+import { useState } from "react";
 import Cliente from "../../../modelo/cliente";
 import "./formularioCadastroPet.css"
 import Pet from "../../../modelo/pet";
@@ -8,82 +8,46 @@ type props = {
     clientes: Cliente[]
 }
 
-type state = {
-    nome: string,
-    tipo: string,
-    raca: string,
-    genero: string,
-    tamanho: string,
-    dono: string
-}
 
-export default class FormularioCadastroPet extends Component<props, state> {
-    constructor(props: props | Readonly<props>) {
-        super(props)
-        this.state = {
-            nome: "",
-            tipo: "",
-            raca: "",
-            genero: "",
-            tamanho: "",
-            dono: ""
-        }
-        this.mudarValorNome = this.mudarValorNome.bind(this)
-        this.mudarValorTipo = this.mudarValorTipo.bind(this)
+export default function FormularioCadastroPet(props: props) {
+    const [nome, setNome] = useState<string>("")
+    const [tipo, setTipo] = useState<string>("")
+    const [raca, setRaca] = useState<string>("")
+    const [genero, setGenero] = useState<string>("")
+    const [tamanho, setTamanho] = useState<string>("")
+    const [dono, setDono] = useState<string>("")
 
-        this.mudarValorRaca = this.mudarValorRaca.bind(this)
-
-        this.mudarValorGenero = this.mudarValorGenero.bind(this)
-        this.mudarValorTamanho = this.mudarValorTamanho.bind(this)
-
-        this.mudarValorDono = this.mudarValorDono.bind(this)
-
-        this.adicionarPetCliente = this.adicionarPetCliente.bind(this)
+    const mudarValorNome = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNome(e.target.value)
     }
 
-    mudarValorNome(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            nome: e.target.value
-        })
+    const mudarValorTipo = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTipo(e.target.value)
     }
 
-    mudarValorTipo(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            tipo: e.target.value
-        })
+    const mudarValorRaca = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setRaca(e.target.value)
     }
 
-    mudarValorRaca(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            raca: e.target.value
-        })
+    const mudarValorGenero = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setGenero(e.target.value)
     }
 
-    mudarValorGenero(e: React.ChangeEvent<HTMLSelectElement>) {
-        this.setState({
-            genero: e.target.value
-        })
+    const mudarValorTamanho = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setTamanho(e.target.value)
     }
 
-    mudarValorTamanho(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            tamanho: e.target.value
-        })
+    const mudarValorDono = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setDono(e.target.value)
     }
 
-    mudarValorDono(e: React.ChangeEvent<HTMLSelectElement>) {
-        this.setState({
-            dono: e.target.value
-        })
-    }
-
-    adicionarPetCliente(e: React.ChangeEvent<HTMLFormElement>) {
+    const adicionarPetCliente = (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
 
         let cachorroTemDono = false
 
-        this.props.clientes.forEach(c => {
-            if ((c.getPets.filter(p => p.getNome === this.state.nome)).length > 0) {
+        props.clientes.forEach(c => {
+            if ((c.getPets.filter(p => p.getNome === nome)).length > 0) {
                 alert("Esse pet já tem um dono")
                 cachorroTemDono = true
             }
@@ -93,106 +57,104 @@ export default class FormularioCadastroPet extends Component<props, state> {
             return
         }
 
-        const cliente = this.props.clientes.find(c => c.nome === this.state.dono)
+        const cliente = props.clientes.find(c => c.nome === dono)
 
         if (!cliente) {
             alert("Esse dono não existe")
             return
         }
 
-        const pet = new Pet(this.state.nome, this.state.tipo, this.state.raca, this.state.genero, this.state.tamanho)
+        const pet = new Pet(nome, tipo, raca, genero, tamanho)
 
         cliente.getPets.push(pet)
 
-        this.setState({
-            nome: "",
-            tipo: "",
-            raca: "",
-            genero: "",
-            tamanho: "",
-            dono: ""
-        })
+        setNome("")
+        setTipo("")
+        setRaca("")
+        setGenero("")
+        setTamanho("")
+        setDono("")
     }
 
-    render() {
-        return (
-            <div className="containerFormularioPet">
-                <form className="formularioPet" onSubmit={this.adicionarPetCliente}>
+    return (
+        <div className="containerFormularioPet">
+            <form className="formularioPet" onSubmit={adicionarPetCliente}>
 
-                    <div className="linhaFormularioCadastroPet">
+                <div className="linhaFormularioCadastroPet">
 
-                        <select className="selectPetForms"
-                            onChange={this.mudarValorDono}
-                            value={this.state.dono}>
-                            <option value="" disabled>Dono</option>
-                            {this.props.clientes.map((c, i) => {
-                                return (
-                                    <option
-                                        value={c.nome}
-                                        key={i}>
-                                        {c.nome}
-                                    </option>
-                                )
-                            })}
-                        </select>
+                    <select className="selectPetForms"
+                        onChange={mudarValorDono}
+                        value={dono}>
+                        <option value="" disabled>Dono</option>
+                        {props.clientes.map((c, i) => {
+                            return (
+                                <option
+                                    value={c.nome}
+                                    key={i}>
+                                    {c.nome}
+                                </option>
+                            )
+                        })}
+                    </select>
 
-                    </div>
+                </div>
 
-                    <div className="linhaFormularioCadastroPet">
+                <div className="linhaFormularioCadastroPet">
 
-                        <input type="text"
-                            className="inputPetForms"
-                            placeholder="Nome"
-                            value={this.state.nome}
-                            onChange={this.mudarValorNome}
-                            required
-                        />
+                    <input type="text"
+                        className="inputPetForms"
+                        placeholder="Nome"
+                        value={nome}
+                        onChange={mudarValorNome}
+                        required
+                    />
 
-                        <select className="selectPetForms"
-                            onChange={this.mudarValorGenero}
-                            value={this.state.genero}>
-                            <option value="" disabled>Genêro</option>
-                            <option value="feminino">Feminino</option>
-                            <option value="masculino">Masculino</option>
-                        </select>
+                    <select className="selectPetForms"
+                        onChange={mudarValorGenero}
+                        value={genero}>
+                        <option value="" disabled>Genêro</option>
+                        <option value="feminino">Feminino</option>
+                        <option value="masculino">Masculino</option>
+                    </select>
 
-                    </div>
+                </div>
 
 
-                    <div className="linhaFormularioCadastroPet">
+                <div className="linhaFormularioCadastroPet">
 
-                        <input type="text"
-                            className="inputPetForms"
-                            placeholder="Tipo"
-                            value={this.state.tipo}
-                            onChange={this.mudarValorTipo}
-                            required
-                        />
+                    <input type="text"
+                        className="inputPetForms"
+                        placeholder="Tipo"
+                        value={tipo}
+                        onChange={mudarValorTipo}
+                        required
+                    />
 
-                        <input type="text"
-                            className="inputPetForms"
-                            placeholder="Raça"
-                            value={this.state.raca}
-                            onChange={this.mudarValorRaca}
-                            required
-                        />
+                    <input type="text"
+                        className="inputPetForms"
+                        placeholder="Raça"
+                        value={raca}
+                        onChange={mudarValorRaca}
+                        required
+                    />
 
-                        <input type="text"
-                            className="inputPetForms"
-                            placeholder="Tamanho"
-                            value={this.state.tamanho}
-                            onChange={this.mudarValorTamanho}
-                            required
-                        />
+                    <select className="selectPetForms"
+                        onChange={mudarValorTamanho}
+                        value={tamanho}>
+                        <option value="" disabled>Tamanho</option>
+                        <option value="Grande">Grande</option>
+                        <option value="Médio">Médio</option>
+                        <option value="Pequeno">Pequeno</option>
+                    </select>
 
-                    </div>
+                </div>
 
-                    <div className="containerBotaoCadastrarPet">
-                        <button className="botaoCadastrarPet">CADASTRAR</button>
-                    </div>
-                </form>
+                <div className="containerBotaoCadastrarPet">
+                    <button className="botaoCadastrarPet">CADASTRAR</button>
+                </div>
+            </form>
 
-            </div>
-        )
-    }
+        </div>
+    )
+
 }

@@ -18,7 +18,8 @@
     align-items: center;
 }
 
-.campoPetEditavel input {
+.campoPetEditavel input,
+.selectPetForms {
     margin-left: auto;
     margin-right: 4rem;
     font-size: 0.9rem;
@@ -29,7 +30,8 @@
     box-shadow: 0 0.2rem 0.2rem 0 rgba(0, 0, 0, 0.2);
 }
 
-.campoPetEditavel input:focus {
+.campoPetEditavel input:focus,
+.selectPetForms {
     outline: none;
 }
 
@@ -45,7 +47,8 @@
         margin-left: 4rem;
     }
 
-    .campoPetEditavel input {
+    .campoPetEditavel input,
+    .selectPetForms {
         margin-left: auto;
         margin-right: 4rem;
         font-size: 1.3rem;
