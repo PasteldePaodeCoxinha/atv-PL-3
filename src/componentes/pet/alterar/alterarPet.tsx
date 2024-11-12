@@ -36,7 +36,7 @@ export default function AlterarPet(props: props) {
 
             <div className="campoPetEditavel">
                 <label>Tamanho:</label>
-                <select className="selectPetForms"
+                <select className="selectPetAlterar"
                     onChange={mudarValorTamanho}
                     value={tamanho}>
                     <option value="" disabled>Tamanho</option>
