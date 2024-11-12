@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useState } from "react";
 import "./roteadorProduto.css"
 import BarraNavegacao from "../../barraNavegacao";
 import Produto from "../../../modelo/produto";
@@ -12,55 +12,48 @@ type props = {
     produtos: Produto[]
 }
 
-type state = {
-    tela: string
+export default function RoteadorProduto(props: props) {
+    const [tela, setTela] = useState<string>("Cadastro")
 
-}
-
-export default class RoteadorProduto extends Component<props, state> {
-    constructor(props: props | Readonly<props>) {
-        super(props)
-        this.state = {
-            tela: 'Cadastro'
-        }
-        this.selecionarView = this.selecionarView.bind(this)
-    }
-
-    selecionarView(novaTela: string, evento: Event) {
+    const selecionarView = (novaTela: string, evento: Event) => {
         evento.preventDefault()
         console.log(novaTela);
-        this.setState({
-            tela: novaTela
-        })
+        setTela(novaTela)
     }
 
-    render() {
-        let barraNavegacao = <BarraNavegacao
-            seletorView={this.selecionarView}
-            botoes={['Lista', 'Cadastro', 'Registrar Compra']}
-            titulo="Produto"
-        />
-        if (this.state.tela === 'Lista') {
-            return (
-                <div className="paginaListaProduto">
-                    {barraNavegacao}
-                    <ListaProdutos produtos={this.props.produtos} clientes={this.props.clientes} />
-                </div>
-            )
-        } else if (this.state.tela === 'Cadastro') {
-            return (
-                <div className="paginaCadastroProduto">
-                    {barraNavegacao}
-                    <FormularioCadastroProduto produtos={this.props.produtos} />
-                </div>
-            )
-        } else if (this.state.tela === 'Registrar Compra') {
-            return (
-                <div className="paginaRegistroCompra">
-                    {barraNavegacao}
-                    <RegistroCompraProduto clientes={this.props.clientes} produtos={this.props.produtos} />
-                </div>
-            )
-        }
+
+    let barraNavegacao = <BarraNavegacao
+        seletorView={selecionarView}
+        botoes={['Lista', 'Cadastro', 'Registrar Compra']}
+        titulo="Produto"
+    />
+    if (tela === 'Lista') {
+        return (
+            <div className="paginaListaProduto">
+                {barraNavegacao}
+                <ListaProdutos produtos={props.produtos} clientes={props.clientes} />
+            </div>
+        )
+    } else if (tela === 'Cadastro') {
+        return (
+            <div className="paginaCadastroProduto">
+                {barraNavegacao}
+                <FormularioCadastroProduto produtos={props.produtos} />
+            </div>
+        )
+    } else if (tela === 'Registrar Compra') {
+        return (
+            <div className="paginaRegistroCompra">
+                {barraNavegacao}
+                <RegistroCompraProduto clientes={props.clientes} produtos={props.produtos} />
+            </div>
+        )
+    } else {
+        return (
+            <div>
+                <p>ERRO!</p>
+            </div>
+        )
     }
+
 }

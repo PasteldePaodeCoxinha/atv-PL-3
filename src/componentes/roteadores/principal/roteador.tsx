@@ -15,7 +15,7 @@ import RoteadorServico from "../servico/roteadorServico";
 
 
 export default function Roteador() {
-    const [tela, setTela] = useState<string>("Pets")
+    const [tela, setTela] = useState<string>("Produtos")
     const [empresa, setEmpresa] = useState<Empresa>(new Empresa())
 
     useEffect(() => {
@@ -86,6 +86,12 @@ export default function Roteador() {
                 <RoteadorServico clientes={empresa.getClientes} servicos={empresa.getServicos} />
             </>
         )
+    } else {
+        return (<>
+            <div>
+                <p>ERRO!</p>
+            </div>
+        </>)
     }
 
 }
