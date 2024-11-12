@@ -1,189 +1,163 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { Component } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "./listaServicos.css"
 import Servico from "../../../modelo/servico";
 import AlterarServico from "../alterar/alterarServico";
 import Cliente from "../../../modelo/cliente";
 
 type props = {
-    servicos: Servico[],
+    servicos: Servico[]
     clientes: Cliente[]
 }
 
-type state = {
-    servicos: Servico[]
-    servico: Servico | undefined
-    ordemLista: number,
-    listaTipos: string[],
-    listaRacas: Array<Array<string>>,
-    racaEscolhida: string,
-    tipoEscolhida: string
-}
+export default function ListaServicos(props: props) {
+    const [servicos, setServicos] = useState<Servico[]>(props.servicos)
+    const [servico, setServico] = useState<Servico | undefined>(undefined)
+    const [ordemLista, setOrdemLista] = useState<number>(0)
+    const [listaTipos, setListaTipos] = useState<string[]>([])
+    const [listaRacas, setListaRacas] = useState<Array<Array<string>>>([])
+    const [racaEscolhida, setRacaEscolhida] = useState<string>("")
+    const [tipoEscolhida, setTipoEscolhida] = useState<string>("")
 
-export default class ListaServicos extends Component<props, state> {
-    constructor(props: props | Readonly<props>) {
-        super(props)
-        this.state = {
-            servicos: props.servicos,
-            servico: undefined,
-            ordemLista: 0,
-            listaTipos: [],
-            listaRacas: [],
-            racaEscolhida: "",
-            tipoEscolhida: "",
-        }
-        this.gerarListaServico = this.gerarListaServico.bind(this)
-        this.excluirServico = this.excluirServico.bind(this)
-        this.pegarUmServico = this.pegarUmServico.bind(this)
-    }
-
-    componentDidMount(): void {
-        this.gerarListaServico()
-
-        this.props.clientes.forEach(c => {
+    useEffect(() => {
+        props.clientes.forEach(c => {
             c.getPets.forEach(p => {
-                if (!this.state.listaTipos.find(t => t === p.getTipo)) {
-                    this.state.listaTipos.push(p.getTipo)
+                if (!listaTipos.find(t => t === p.getTipo)) {
+                    setListaTipos([...listaTipos, p.getTipo])
                 }
-                if (!this.state.listaRacas.find(r => r[1] === p.getRaca)) {
-                    this.state.listaRacas.push([p.getTipo, p.getRaca])
+                if (!listaRacas.find(r => r[1] === p.getRaca)) {
+                    setListaRacas([...listaRacas, [p.getTipo, p.getRaca]])
                 }
             })
         })
-    }
+    }, [props.clientes, listaRacas, listaTipos])
 
-    componentDidUpdate(): void {
-        this.gerarListaServico()
-    }
+    const pegarUmServico = useCallback((nome: string) => {
+        const servico = props.servicos.find(c => c.nome === nome)
+        setServico(servico)
+    }, [props.servicos])
 
-    pegarUmServico(nome: string) {
-        const servico = this.state.servicos.find(c => c.nome === nome)
-        this.setState({
-            servico: servico,
-        })
-    }
+    const excluirServico = useCallback((e: React.MouseEvent<HTMLButtonElement, MouseEvent>, nome: string) => {
+        setServicos(servicos.filter(p => p.nome !== nome))
+        e.stopPropagation()
+    }, [servicos])
 
-    excluirServico(nome: string) {
-        this.state.servicos.splice((this.state.servicos.findIndex(c => c.nome === nome)), 1)
-        this.setState({
-            servicos: this.state.servicos
-        })
-    }
-
-    gerarListaServico() {
-        if (this.state.servicos.length <= 0) {
+    const gerarListaServico = useCallback(() => {
+        if (servicos.length <= 0) {
             return <></>
         } else {
-            let servicos = this.state.servicos
+            let servicosTemp = servicos
 
-            if (this.state.ordemLista === 0) {
-                servicos = this.props.servicos
-            } else if (this.state.ordemLista === 1) {
-                servicos = this.state.servicos.toSorted((a, b) => b.getCompraram - a.getCompraram)
-            } else if (this.state.ordemLista === 2) {
+            if (ordemLista === 0) {
+                servicosTemp = servicos
+            } else if (ordemLista === 1) {
+                servicosTemp = servicos.toSorted((a, b) => b.getCompraram - a.getCompraram)
+            } else if (ordemLista === 2) {
                 const sortTipo = (a: Servico, b: Servico): number => {
-                    return ((b.getRacasCompraram.filter(r => r[0].toLocaleLowerCase() === this.state.tipoEscolhida.toLocaleLowerCase()).length)
+                    return ((b.getRacasCompraram.filter(r => r[0].toLocaleLowerCase() === tipoEscolhida.toLocaleLowerCase()).length)
                         -
-                        (a.getRacasCompraram.filter(r => r[0].toLocaleLowerCase() === this.state.tipoEscolhida.toLocaleLowerCase()).length))
+                        (a.getRacasCompraram.filter(r => r[0].toLocaleLowerCase() === tipoEscolhida.toLocaleLowerCase()).length))
                 }
-                servicos = this.state.servicos.toSorted(sortTipo)
+                servicosTemp = servicos.toSorted(sortTipo)
 
-                if (this.state.racaEscolhida !== "") {
+                if (racaEscolhida !== "") {
                     const sortRaca = (a: Servico, b: Servico): number => {
-                        return ((b.getRacasCompraram.filter(r => r[1].toLocaleLowerCase() === this.state.racaEscolhida.toLocaleLowerCase()).length)
+                        return ((b.getRacasCompraram.filter(r => r[1].toLocaleLowerCase() === racaEscolhida.toLocaleLowerCase()).length)
                             -
-                            (a.getRacasCompraram.filter(r => r[1].toLocaleLowerCase() === this.state.racaEscolhida.toLocaleLowerCase()).length))
+                            (a.getRacasCompraram.filter(r => r[1].toLocaleLowerCase() === racaEscolhida.toLocaleLowerCase()).length))
                     }
-                    servicos = this.state.servicos.toSorted(sortRaca)
+                    servicosTemp = servicos.toSorted(sortRaca)
                 }
             }
 
-            let listaServico = servicos.map((p, i) =>
-                <tr className="linhaTabelaServicos" key={i} onClick={() => this.pegarUmServico(p.nome)
+            let listaServico = servicosTemp.map((p, i) =>
+                <tr className="linhaTabelaServicos" key={i} onClick={() => pegarUmServico(p.nome)
                 }>
                     <td>{p.nome}</td>
                     <td>R$ {((p.preco * 100) * 0.01).toFixed(2).replace(".", ",")}</td>
-                    <td><button className="botaExcluirServico" onClick={() => this.excluirServico(p.nome)}>Excluir</button></td>
+                    <td><button className="botaExcluirServico" onClick={(e) => excluirServico(e, p.nome)}>Excluir</button></td>
                 </tr>
             )
             return listaServico
         }
-    }
+    }, [servicos, ordemLista, racaEscolhida, tipoEscolhida, excluirServico, pegarUmServico])
 
-    render() {
-        return (
-            <div className="containerListaServico">
-                {this.state.servico === undefined ? (
-                    <div className="servicosCadastrados">
+    useEffect(() => {
+        gerarListaServico()
+    }, [gerarListaServico])
 
-<select className="seletorOrdemListaServico"
-                            onChange={e => this.setState({ ordemLista: Number(e.target.value).valueOf() })}
-                        >
-                            <option value={0}>Ordenar por ordem cadastrado</option>
-                            <option value={1}>Ordenar mais vendidos</option>
-                            <option value={2}>Ordenar por mais consumidos por tipo e raça</option>
-                        </select>
+    return (
+        <div className="containerListaServico">
+            {servico === undefined ? (
+                <div className="servicosCadastrados">
 
-                        {this.state.ordemLista === 2 ? (
-                            <div className="seletoresDeTipoRacaServico">
-                                <select className="seletorOrdemListaServico"
-                                    onChange={e => this.setState({ tipoEscolhida: e.target.value })}
-                                    value={this.state.tipoEscolhida}
-                                >
-                                    <option value="" disabled>Selecione o tipo do pet</option>
-                                    {this.state.listaTipos.map(t => {
-                                        return (
-                                            <option value={t}>{t}</option>
-                                        )
-                                    })
-                                    }
-                                </select>
+                    <select className="seletorOrdemListaServico"
+                        onChange={e => setOrdemLista(Number(e.target.value).valueOf())}
+                    >
+                        <option value={0}>Ordenar por ordem cadastrado</option>
+                        <option value={1}>Ordenar mais vendidos</option>
+                        <option value={2}>Ordenar por mais consumidos por tipo e raça</option>
+                    </select>
 
-                                <select className="seletorOrdemListaServico"
-                                    onChange={e => this.setState({ racaEscolhida: e.target.value })}
-                                    value={this.state.racaEscolhida}
-                                >
-                                    <option value="" disabled>Selecione a raça do pet</option>
-                                    {this.state.listaRacas.filter(r => r[0] === this.state.tipoEscolhida).map(t => {
-                                        return (
-                                            <option value={t[1]}>{t[1]}</option>
-                                        )
-                                    })
+                    {ordemLista === 2 ? (
+                        <div className="seletoresDeTipoRacaServico">
+                            <select className="seletorOrdemListaServico"
+                                onChange={e => setTipoEscolhida(e.target.value)}
+                                value={tipoEscolhida}
+                            >
+                                <option value="" disabled>Selecione o tipo do pet</option>
+                                {listaTipos.map(t => {
+                                    return (
+                                        <option value={t}>{t}</option>
+                                    )
+                                })
+                                }
+                            </select>
 
-                                    }
-                                </select>
-                            </div>
-                        ) : (
-                            <></>
-                        )
+                            <select className="seletorOrdemListaServico"
+                                onChange={e => setRacaEscolhida(e.target.value)}
+                                value={racaEscolhida}
+                            >
+                                <option value="" disabled>Selecione a raça do pet</option>
+                                {listaRacas.filter(r => r[0] === tipoEscolhida).map(t => {
+                                    return (
+                                        <option value={t[1]}>{t[1]}</option>
+                                    )
+                                })
 
-                        }
+                                }
+                            </select>
+                        </div>
+                    ) : (
+                        <></>
+                    )
 
-                        <table className="tabelaServicos">
-                            <thead>
-                                <tr className="headerTabelaServicos">
-                                    <th>Nome</th>
-                                    <th>Preço</th>
-                                    <th>Excluir</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {this.gerarListaServico()}
-                            </tbody>
-                        </table>
-                    </div>
+                    }
 
-                ) : (
+                    <table className="tabelaServicos">
+                        <thead>
+                            <tr className="headerTabelaServicos">
+                                <th>Nome</th>
+                                <th>Preço</th>
+                                <th>Excluir</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {gerarListaServico()}
+                        </tbody>
+                    </table>
+                </div>
 
-                    <>
-                        <button className="botaVoltarListagemServico" onClick={() => { this.setState({ servico: undefined }) }}>
-                            Voltar
-                        </button>
-                        <AlterarServico servico={this.state.servico} listaTipos={this.state.listaTipos} listaRacas={this.state.listaRacas} />
-                    </>
+            ) : (
 
-                )}
-            </div>
-        )
-    }
+                <>
+                    <button className="botaVoltarListagemServico" onClick={() => setServico(undefined)}>
+                        Voltar
+                    </button>
+                    <AlterarServico servico={servico} listaTipos={listaTipos} listaRacas={listaRacas} />
+                </>
+
+            )}
+        </div>
+    )
 }
