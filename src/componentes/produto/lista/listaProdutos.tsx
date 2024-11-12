@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { Component } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "./listaProdutos.css"
 import Produto from "../../../modelo/produto";
 import AlterarProduto from "../alterar/alterarProduto";
@@ -10,180 +10,154 @@ type props = {
     clientes: Cliente[]
 }
 
-type state = {
-    produtos: Produto[],
-    produto: Produto | undefined,
-    ordemLista: number,
-    listaTipos: string[],
-    listaRacas: Array<Array<string>>,
-    racaEscolhida: string,
-    tipoEscolhida: string
-}
+export default function ListaProdutos(props: props) {
+    const [produtos, setProdutos] = useState<Produto[]>(props.produtos)
+    const [produto, setProduto] = useState<Produto | undefined>(undefined)
+    const [ordemLista, setOrdemLista] = useState<number>(0)
+    const [listaTipos, setListaTipos] = useState<string[]>([])
+    const [listaRacas, setListaRacas] = useState<Array<Array<string>>>([])
+    const [racaEscolhida, setRacaEscolhida] = useState<string>("")
+    const [tipoEscolhida, setTipoEscolhida] = useState<string>("")
 
-export default class ListaProdutos extends Component<props, state> {
-    constructor(props: props | Readonly<props>) {
-        super(props)
-        this.state = {
-            produtos: props.produtos,
-            produto: undefined,
-            ordemLista: 0,
-            listaTipos: [],
-            listaRacas: [],
-            racaEscolhida: "",
-            tipoEscolhida: "",
-        }
-        this.gerarListaProduto = this.gerarListaProduto.bind(this)
-        this.excluirProduto = this.excluirProduto.bind(this)
-        this.pegarUmProduto = this.pegarUmProduto.bind(this)
-    }
-
-    componentDidMount(): void {
-        this.gerarListaProduto()
-
-        this.props.clientes.forEach(c => {
+    useEffect(() => {
+        props.clientes.forEach(c => {
             c.getPets.forEach(p => {
-                if (!this.state.listaTipos.find(t => t === p.getTipo)) {
-                    this.state.listaTipos.push(p.getTipo)
+                if (!listaTipos.find(t => t === p.getTipo)) {
+                    setListaTipos([...listaTipos, p.getTipo])
                 }
-                if (!this.state.listaRacas.find(r => r[1] === p.getRaca)) {
-                    this.state.listaRacas.push([p.getTipo, p.getRaca])
+                if (!listaRacas.find(r => r[1] === p.getRaca)) {
+                    setListaRacas([...listaRacas, [p.getTipo, p.getRaca]])
                 }
             })
         })
-    }
+    }, [props.clientes, listaRacas, listaTipos])
 
-    componentDidUpdate(): void {
-        this.gerarListaProduto()
-    }
+    const pegarUmProduto = useCallback((nome: string) => {
+        const produto = props.produtos.find(c => c.nome === nome)
+        setProduto(produto)
+    }, [props.produtos])
 
-    pegarUmProduto(nome: string) {
-        const produto = this.state.produtos.find(c => c.nome === nome)
-        this.setState({
-            produto: produto,
-        })
-    }
+    const excluirProduto = useCallback((e: React.MouseEvent<HTMLButtonElement, MouseEvent>, nome: string) => {
+        setProdutos(produtos.filter(p => p.nome !== nome))
+        e.stopPropagation()
+    }, [produtos])
 
-    excluirProduto(nome: string) {
-        this.state.produtos.splice((this.state.produtos.findIndex(c => c.nome === nome)), 1)
-        this.setState({
-            produtos: this.state.produtos
-        })
-    }
-
-    gerarListaProduto() {
-        if (this.state.produtos.length <= 0) {
+    const gerarListaProduto = useCallback(() => {
+        if (produtos.length <= 0) {
             return <></>
         } else {
-            let produtos = this.state.produtos
+            let produtosTemp = produtos
 
-            if (this.state.ordemLista === 0) {
-                produtos = this.props.produtos
-            } else if (this.state.ordemLista === 1) {
-                produtos = this.state.produtos.toSorted((a, b) => b.getCompraram - a.getCompraram)
-            } else if (this.state.ordemLista === 2) {
+            if (ordemLista === 0) {
+                produtosTemp = produtos
+            } else if (ordemLista === 1) {
+                produtosTemp = produtos.toSorted((a, b) => b.getCompraram - a.getCompraram)
+            } else if (ordemLista === 2) {
                 const sortTipo = (a: Produto, b: Produto): number => {
-                    return ((b.getRacasCompraram.filter(r => r[0].toLocaleLowerCase() === this.state.tipoEscolhida.toLocaleLowerCase()).length)
+                    return ((b.getRacasCompraram.filter(r => r[0].toLocaleLowerCase() === tipoEscolhida.toLocaleLowerCase()).length)
                         -
-                        (a.getRacasCompraram.filter(r => r[0].toLocaleLowerCase() === this.state.tipoEscolhida.toLocaleLowerCase()).length))
+                        (a.getRacasCompraram.filter(r => r[0].toLocaleLowerCase() === tipoEscolhida.toLocaleLowerCase()).length))
                 }
-                produtos = this.state.produtos.toSorted(sortTipo)
+                produtosTemp = produtos.toSorted(sortTipo)
 
-                if (this.state.racaEscolhida !== "") {
+                if (racaEscolhida !== "") {
                     const sortRaca = (a: Produto, b: Produto): number => {
-                        return ((b.getRacasCompraram.filter(r => r[1].toLocaleLowerCase() === this.state.racaEscolhida.toLocaleLowerCase()).length)
+                        return ((b.getRacasCompraram.filter(r => r[1].toLocaleLowerCase() === racaEscolhida.toLocaleLowerCase()).length)
                             -
-                            (a.getRacasCompraram.filter(r => r[1].toLocaleLowerCase() === this.state.racaEscolhida.toLocaleLowerCase()).length))
+                            (a.getRacasCompraram.filter(r => r[1].toLocaleLowerCase() === racaEscolhida.toLocaleLowerCase()).length))
                     }
-                    produtos = this.state.produtos.toSorted(sortRaca)
+                    produtosTemp = produtos.toSorted(sortRaca)
                 }
             }
 
-            let listaProduto = produtos.map((p, i) =>
-                <tr className="linhaTabelaProdutos" key={i} onClick={() => this.pegarUmProduto(p.nome)
+            let listaProduto = produtosTemp.map((p, i) =>
+                <tr className="linhaTabelaProdutos" key={i} onClick={() => pegarUmProduto(p.nome)
                 }>
                     <td>{p.nome}</td>
                     <td>R$ {((p.preco * 100) * 0.01).toFixed(2).replace(".", ",")}</td>
-                    <td><button className="botaExcluirProduto" onClick={() => this.excluirProduto(p.nome)}>Excluir</button></td>
+                    <td><button className="botaExcluirProduto" onClick={(e) => excluirProduto(e, p.nome)}>Excluir</button></td>
                 </tr>
             )
             return listaProduto
         }
-    }
+    }, [produtos, ordemLista, racaEscolhida, tipoEscolhida, excluirProduto, pegarUmProduto])
 
-    render() {
-        return (
-            <div className="containerListaProduto">
-                {this.state.produto === undefined ? (
-                    <div className="produtosCadastrados">
+    useEffect(() => {
+        gerarListaProduto()
+    }, [gerarListaProduto])
 
-                        <select className="seletorOrdemListaProduto"
-                            onChange={e => this.setState({ ordemLista: Number(e.target.value).valueOf() })}
-                        >
-                            <option value={0}>Ordenar por ordem cadastrado</option>
-                            <option value={1}>Ordenar mais vendidos</option>
-                            <option value={2}>Ordenar por mais consumidos por tipo e raça</option>
-                        </select>
+    return (
+        <div className="containerListaProduto">
+            {produto === undefined ? (
+                <div className="produtosCadastrados">
 
-                        {this.state.ordemLista === 2 ? (
-                            <div className="seletoresDeTipoRacaProduto">
-                                <select className="seletorOrdemListaProduto"
-                                    onChange={e => this.setState({ tipoEscolhida: e.target.value })}
-                                    value={this.state.tipoEscolhida}
-                                >
-                                    <option value="" disabled>Selecione o tipo do pet</option>
-                                    {this.state.listaTipos.map(t => {
-                                        return (
-                                            <option value={t}>{t}</option>
-                                        )
-                                    })
-                                    }
-                                </select>
+                    <select className="seletorOrdemListaProduto"
+                        onChange={e => setOrdemLista(Number(e.target.value).valueOf())}
+                    >
+                        <option value={0}>Ordenar por ordem cadastrado</option>
+                        <option value={1}>Ordenar mais vendidos</option>
+                        <option value={2}>Ordenar por mais consumidos por tipo e raça</option>
+                    </select>
 
-                                <select className="seletorOrdemListaProduto"
-                                    onChange={e => this.setState({ racaEscolhida: e.target.value })}
-                                    value={this.state.racaEscolhida}
-                                >
-                                    <option value="" disabled>Selecione a raça do pet</option>
-                                    {this.state.listaRacas.filter(r => r[0] === this.state.tipoEscolhida).map(t => {
-                                        return (
-                                            <option value={t[1]}>{t[1]}</option>
-                                        )
-                                    })
+                    {ordemLista === 2 ? (
+                        <div className="seletoresDeTipoRacaProduto">
+                            <select className="seletorOrdemListaProduto"
+                                onChange={e => setTipoEscolhida(e.target.value)}
+                                value={tipoEscolhida}
+                            >
+                                <option value="" disabled>Selecione o tipo do pet</option>
+                                {listaTipos.map(t => {
+                                    return (
+                                        <option value={t}>{t}</option>
+                                    )
+                                })
+                                }
+                            </select>
 
-                                    }
-                                </select>
-                            </div>
-                        ) : (
-                            <></>
-                        )
+                            <select className="seletorOrdemListaProduto"
+                                onChange={e => setRacaEscolhida(e.target.value)}
+                                value={racaEscolhida}
+                            >
+                                <option value="" disabled>Selecione a raça do pet</option>
+                                {listaRacas.filter(r => r[0] === tipoEscolhida).map(t => {
+                                    return (
+                                        <option value={t[1]}>{t[1]}</option>
+                                    )
+                                })
 
-                        }
+                                }
+                            </select>
+                        </div>
+                    ) : (
+                        <></>
+                    )
 
-                        <table className="tabelaProdutos">
-                            <thead>
-                                <tr className="headerTabelaProdutos">
-                                    <th>Nome</th>
-                                    <th>Preço</th>
-                                    <th>Excluir</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {this.gerarListaProduto()}
-                            </tbody>
-                        </table>
-                    </div>
+                    }
 
-                ) : (
+                    <table className="tabelaProdutos">
+                        <thead>
+                            <tr className="headerTabelaProdutos">
+                                <th>Nome</th>
+                                <th>Preço</th>
+                                <th>Excluir</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {gerarListaProduto()}
+                        </tbody>
+                    </table>
+                </div>
 
-                    <>
-                        <button className="botaVoltarListagemProduto" onClick={() => { this.setState({ produto: undefined }) }}>
-                            Voltar
-                        </button>
-                        <AlterarProduto produto={this.state.produto} listaTipos={this.state.listaTipos} listaRacas={this.state.listaRacas} />
-                    </>
+            ) : (
 
-                )}
-            </div>
-        )
-    }
+                <>
+                    <button className="botaVoltarListagemProduto" onClick={() => setProduto(undefined)}>
+                        Voltar
+                    </button>
+                    <AlterarProduto produto={produto} listaTipos={listaTipos} listaRacas={listaRacas} />
+                </>
+
+            )}
+        </div>
+    )
 }
