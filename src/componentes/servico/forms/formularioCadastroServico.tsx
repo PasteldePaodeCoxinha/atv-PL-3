@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import { Component } from "react";
+import { useState } from "react";
 import "./formularioCadastroServico.css"
 import Servico from "../../../modelo/servico";
 
@@ -7,87 +7,66 @@ type props = {
     servicos: Servico[]
 }
 
-type state = {
-    nome: string,
-    preco: number,
-}
+export default function FormularioCadastroServico(props: props) {
+    const [nome, setNome] = useState<string>("")
+    const [preco, setPreco] = useState<number>(0)
 
-export default class FormularioCadastroServico extends Component<props, state> {
-    constructor(props: props | Readonly<props>) {
-        super(props)
-        this.state = {
-            nome: "",
-            preco: 0
-        }
-        this.mudarValorNome = this.mudarValorNome.bind(this)
-        this.mudarValorPreco = this.mudarValorPreco.bind(this)
-
-        this.adicionarServico = this.adicionarServico.bind(this)
+    const mudarValorNome = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNome(e.target.value)
     }
 
-    mudarValorNome(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            nome: e.target.value
-        })
-    }
-
-    mudarValorPreco(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            preco: Number(e.target.value).valueOf()
-        })
+    const mudarValorPreco = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPreco(Number(e.target.value).valueOf())
     }
 
 
-    adicionarServico(e: React.ChangeEvent<HTMLFormElement>) {
+    const adicionarServico = (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
-        
-        if (this.props.servicos.find(p => p.nome === this.state.nome)) {
+
+        if (props.servicos.find(p => p.nome === nome)) {
             alert("Esse servico já está registrado")
             return
         }
 
-        const servico = new Servico(this.state.nome, this.state.preco)
+        const servico = new Servico(nome, preco)
 
-        this.props.servicos.push(servico)
+        props.servicos.push(servico)
 
-        this.setState({
-            nome: "",
-            preco: 0
-        })
+        setNome("")
+        setPreco(0)
     }
 
-    render() {
-        return (
-            <div className="containerFormularioServico">
-                <form className="formularioServico" onSubmit={this.adicionarServico}>
+    return (
+        <div className="containerFormularioServico">
+            <form className="formularioServico" onSubmit={adicionarServico}>
 
-                    <div className="linhaFormularioCadastroServico">
+                <div className="linhaFormularioCadastroServico">
 
-                        <input type="text"
-                            className="inputServicoForms"
-                            placeholder="Nome"
-                            value={this.state.nome}
-                            onChange={this.mudarValorNome}
-                            required
-                            />
+                    <input type="text"
+                        className="inputServicoForms"
+                        placeholder="Nome"
+                        value={nome}
+                        onChange={mudarValorNome}
+                        required
+                    />
 
-                        <input type="number"
-                            className="inputServicoForms"
-                            placeholder="Porduto"
-                            value={this.state.preco}
-                            onChange={this.mudarValorPreco}
-                            required
-                            
-                            />
+                    <input type="number"
+                        className="inputServicoForms"
+                        placeholder="Porduto"
+                        value={preco}
+                        onChange={mudarValorPreco}
+                        required
 
-                    </div>
+                    />
 
-                    <div className="containerBotaoCadastrarServico">
-                        <button className="botaoCadastrarServico">CADASTRAR</button>
-                    </div>
-                </form>
+                </div>
 
-            </div>
-        )
-    }
+                <div className="containerBotaoCadastrarServico">
+                    <button className="botaoCadastrarServico">CADASTRAR</button>
+                </div>
+            </form>
+
+        </div>
+    )
+
 }
