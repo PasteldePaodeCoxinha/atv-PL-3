@@ -35,7 +35,12 @@ export default function FormularioCadastroCliente(props: props) {
     }
 
     const mudarValorCpf = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setValorCpf(e.target.value)
+        if (!isNaN(Number(e.target.value).valueOf())) {
+            setValorCpf(e.target.value)
+        } else {
+            setValorCpf(valorCpf)
+        }
+
     }
 
     const mudarValorDataCpf = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,7 +48,11 @@ export default function FormularioCadastroCliente(props: props) {
     }
 
     const mudarValorRg = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setValorRg(e.target.value)
+        if (!isNaN(Number(e.target.value).valueOf())) {
+            setValorRg(e.target.value)
+        } else {
+            setValorRg(valorCpf)
+        }
     }
 
     const mudarValorDataRg = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,7 +145,7 @@ export default function FormularioCadastroCliente(props: props) {
                             onChange={mudarValorCpf}
                             required />
 
-                        <input type="text"
+                        <input type="date"
                             className="inputClienteForms"
                             placeholder="Data CPF"
                             datatype=""
@@ -157,7 +166,7 @@ export default function FormularioCadastroCliente(props: props) {
                             onChange={mudarValorRg}
                             required />
 
-                        <input type="text"
+                        <input type="date"
                             placeholder="Data RG"
                             className="inputClienteForms"
                             value={dataRg}
