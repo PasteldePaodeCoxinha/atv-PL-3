@@ -1,4 +1,4 @@
-import { Component, ReactNode } from "react";
+import { useState } from "react";
 import Cliente from "../../../modelo/cliente";
 import Servico from "../../../modelo/servico";
 import "./registroCompraServico.css"
@@ -9,182 +9,145 @@ type props = {
     servicos: Servico[]
 }
 
-type state = {
-    cliente: Cliente | undefined,
-    servico: Servico | undefined,
-    pet: Pet | undefined,
-    textoAviso: string,
-    nomeServico: string,
-    nomePet: string,
-    qtdServicos: number
-}
+export default function RegistroCompraServico(props: props) {
+    const [cliente, setCliente] = useState<Cliente | undefined>(undefined)
+    const [servico, setServico] = useState<Servico | undefined>(undefined)
+    const [pet, setPet] = useState<Pet | undefined>(undefined)
+    const [textoAviso, setTextoAviso] = useState<string>("Selecione um servico!")
+    const [nomeServico, setNomeServico] = useState<string>("")
+    const [nomePet, setNomePet] = useState<string>("")
+    const [qtdServicos, setQtdServicos] = useState<number>(0)
 
-export default class RegistroCompraServico extends Component<props, state> {
-    constructor(props: props | Readonly<props>) {
-        super(props)
-        this.state = {
-            cliente: undefined,
-            servico: undefined,
-            pet: undefined,
-            textoAviso: "Selecione um cliente!",
-            nomeServico: "",
-            nomePet: "",
-            qtdServicos: 0
-        }
-
-        this.selecionarCliente = this.selecionarCliente.bind(this)
-        this.registrarCompra = this.registrarCompra.bind(this)
-    }
-
-    selecionarCliente(n: string) {
-        const cliente = this.props.clientes.find(c => c.nome === n)
+    const selecionarCliente = (n: string) => {
+        const cliente = props.clientes.find(c => c.nome === n)
         if (cliente) {
-            this.setState({
-                cliente: cliente,
-                textoAviso: "Selecione um serviço!"
-            })
+            setCliente(cliente)
         }
     }
 
-    registrarCompra() {
-        if (this.state.cliente && this.state.servico && this.state.pet) {
-            for (let i = 0; i < this.state.qtdServicos; i++) {
-                const cliente = this.state.cliente
-                const servico = this.state.servico
-                const pet = this.state.pet
+    const registrarCompra = () => {
+        if (cliente && servico && pet) {
+            for (let i = 0; i < qtdServicos; i++) {
+                const clienteTemp = cliente
+                const servicoTemp = servico
+                const petTemp = pet
 
-                cliente.getServicosConsumidos.push(servico)
-                cliente.setValorGasto = cliente.getValorGasto + Number(((servico.preco * 100) * 0.01).toFixed(2)).valueOf()
-                servico.compraramMaisUm()
-                servico.getRacasCompraram.push([pet.getTipo, pet.getRaca])
+                clienteTemp.getServicosConsumidos.push(servicoTemp)
+                clienteTemp.setValorGasto = clienteTemp.getValorGasto + Number(((servicoTemp.preco * 100) * 0.01).toFixed(2)).valueOf()
+                servicoTemp.compraramMaisUm()
+                servicoTemp.getRacasCompraram.push([petTemp.getTipo, petTemp.getRaca])
 
-                this.setState({
-                    cliente: cliente,
-                    servico: servico,
-                    pet: pet
-                })
+                setCliente(clienteTemp)
+                setServico(servicoTemp)
+                setPet(petTemp)
             }
         } else {
-            this.setState({
-                textoAviso: "Preencha todos os campos!"
-            })
+            setTextoAviso("Preencha todos os campos!")
             return
         }
 
-        this.setState({
-            textoAviso: "Compra registrada!",
-            servico: undefined,
-            qtdServicos: 0,
-            nomeServico: "",
-            nomePet: ""
-        })
+        setTextoAviso("Compra registrada!")
+        setServico(undefined)
+        setQtdServicos(0)
+        setNomeServico("")
+        setNomePet("")
 
         setTimeout(() => {
-            this.setState({
-                textoAviso: "Selecione um serviço!"
-            })
+            setTextoAviso("Selecione um servico!")
         }, 1500)
     }
 
-    render(): ReactNode {
-        return (
-            <div className="containerRegistroServico">
+    return (
+        <div className="containerRegistroServico">
 
-                <div className="containerAvisoRegistroServico">
-                    <p className="textoAvisoRegistroServico">{this.state.textoAviso}</p>
-                </div>
+            <div className="containerTabelaResgistroServico">
+                {!cliente ? (
+                    <table className="tabelaRegistroServicoClientes">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {props.clientes.map((c, i) => {
+                                return (
+                                    <tr key={i}
+                                        onClick={() => selecionarCliente(c.nome)}>
+                                        <td>{c.nome}</td>
+                                    </tr>)
+                            })}
+                        </tbody>
+                    </table>
+                ) : (
+                    <div className="menuRegistroCompraServico">
+                        <button className="botaVoltarRegistroServico" onClick={() => setCliente(undefined)}>
+                            Voltar
+                        </button>
 
-                <div className="containerTabelaResgistroServico">
-                    {!this.state.cliente ? (
-                        <table className="tabelaRegistroServicoClientes">
-                            <thead>
-                                <tr>
-                                    <th>Nome</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {this.props.clientes.map((c, i) => {
-                                    return (
-                                        <tr className={c.nome === this.state.cliente?.nome ? "linhaSelecionadaRegistroServico" : ""}
-                                            key={i}
-                                            onClick={() => this.selecionarCliente(c.nome)}>
-                                            <td>{c.nome}</td>
-                                        </tr>)
-                                })}
-                            </tbody>
-                        </table>
-                    ) : (
-                        <div className="menuRegistroCompraServico">
-                            <button className="botaVoltarRegistroServico" onClick={() => { this.setState({ cliente: undefined }) }}>
-                                Voltar
-                            </button>
+                        <p className="textoAvisoRegistroServico">{textoAviso}</p>
 
-                            <div className="containerSeletorServico">
-                                <select className="seletorServico"
-                                    onChange={e => {
-                                        this.setState({
-                                            servico: this.props.servicos.find(s => s.nome === e.target.value),
-                                            nomeServico: e.target.value
-                                        })
-                                    }}
-                                    value={this.state.nomeServico}
-                                >
-                                    <option value="" disabled>Selecione o servico</option>
-                                    {this.props.servicos.map((p, i) => {
-                                        return (
-                                            <option
-                                                value={p.nome}
-                                                key={i}>
-                                                {p.nome}
-                                            </option>
-                                        )
-                                    })}
-                                </select>
+                        <p className="textoAvisoRegistroServico">{cliente.nome}</p>
 
-                                <select className="seletorProduto"
-                                    onChange={e => {
-                                        this.setState({
-                                            pet: this.state.cliente?.getPets.find(p => p.getNome === e.target.value),
-                                            nomePet: e.target.value
-                                        })
-                                    }}
-                                    value={this.state.nomePet}
-                                >
-                                    <option value="" disabled>Selecione o Pet</option>
-                                    {this.state.cliente.getPets.map((p, i) => {
-                                        return (
-                                            <option
-                                                value={p.getNome}
-                                                key={i}>
-                                                {p.getNome}
-                                            </option>
-                                        )
-                                    })}
-                                </select>
-
-                                <input type="number"
-                                    className="qtdServicosEscolher"
-                                    value={this.state.qtdServicos}
-                                    onChange={e => {
-                                        this.setState({
-                                            qtdServicos: Number(e.target.value).valueOf()
-                                        })
-                                    }}
-                                />
-                            </div>
-
-                            <button className="botaResgitrarCompraServico"
-                                onClick={() => this.registrarCompra()}
+                        <div className="containerSeletorServico">
+                            <select className="seletorServico"
+                                onChange={e => {
+                                    setServico(props.servicos.find(p => p.nome === e.target.value))
+                                    setNomeServico(e.target.value)
+                                }}
+                                value={nomeServico}
                             >
-                                <p>
-                                    Registrar
-                                </p>
-                            </button>
-                        </div>
-                    )}
-                </div>
+                                <option value="" disabled>Selecione o servico</option>
+                                {props.servicos.map((p, i) => {
+                                    return (
+                                        <option
+                                            value={p.nome}
+                                            key={i}>
+                                            {p.nome}
+                                        </option>
+                                    )
+                                })}
+                            </select>
 
+                            <select className="seletorServico"
+                                onChange={e => {
+                                    setPet(cliente?.getPets.find(p => p.getNome === e.target.value))
+                                    setNomePet(e.target.value)
+                                }}
+                                value={nomePet}
+                            >
+                                <option value="" disabled>Selecione o Pet</option>
+                                {cliente.getPets.map((p, i) => {
+                                    return (
+                                        <option
+                                            value={p.getNome}
+                                            key={i}>
+                                            {p.getNome}
+                                        </option>
+                                    )
+                                })}
+                            </select>
+
+                            <input type="number"
+                                className="qtdServicosEscolher"
+                                value={qtdServicos}
+                                onChange={e => {
+                                    setQtdServicos(Number(e.target.value).valueOf())
+                                }}
+                            />
+                        </div>
+
+                        <button className="botaResgitrarCompraServico"
+                            onClick={() => registrarCompra()}
+                        >
+                            <p>
+                                Registrar
+                            </p>
+                        </button>
+                    </div>
+                )}
             </div>
-        )
-    }
+
+        </div>
+    )
+
 }
