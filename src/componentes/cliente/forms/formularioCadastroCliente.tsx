@@ -60,11 +60,19 @@ export default function FormularioCadastroCliente(props: props) {
     }
 
     const mudarValorTelefone1 = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setTelefone1(e.target.value)
+        if (!isNaN(Number(e.target.value).valueOf())) {
+            setTelefone1(e.target.value)
+        } else {
+            setTelefone1(telefone1)
+        }
     }
 
     const mudarValorTelefone2 = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setTelefone2(e.target.value)
+        if (!isNaN(Number(e.target.value).valueOf())) {
+            setTelefone2(e.target.value)
+        } else {
+            setTelefone2(telefone2)
+        }
     }
 
     const clienteCriarAdicionar = (e: React.ChangeEvent<HTMLFormElement>) => {
@@ -115,7 +123,6 @@ export default function FormularioCadastroCliente(props: props) {
                         required />
 
 
-
                     <input type="text"
                         className="inputClienteForms"
                         placeholder="Nome social"
@@ -140,7 +147,7 @@ export default function FormularioCadastroCliente(props: props) {
 
                         <input type="text"
                             className="inputClienteForms"
-                            placeholder="CPF"
+                            placeholder="CPF (Números)"
                             value={valorCpf}
                             onChange={mudarValorCpf}
                             required />
@@ -161,7 +168,7 @@ export default function FormularioCadastroCliente(props: props) {
 
                         <input type="text"
                             className="inputClienteForms"
-                            placeholder="RG"
+                            placeholder="RG (Números)"
                             value={valorRg}
                             onChange={mudarValorRg}
                             required />
@@ -180,16 +187,15 @@ export default function FormularioCadastroCliente(props: props) {
 
                     <input type="text"
                         className="inputClienteForms"
-                        placeholder="Telefone 1"
+                        placeholder="Telefone 1 (Números)"
                         value={telefone1}
                         onChange={mudarValorTelefone1}
                         required />
 
 
-
                     <input type="text"
                         className="inputClienteForms"
-                        placeholder="Telefone 2"
+                        placeholder="Telefone 2 (Números)"
                         value={telefone2}
                         onChange={mudarValorTelefone2} />
 
